@@ -1,9 +1,68 @@
-export const RegisterUser = async(req, res) => {
+import bcrypt from 'bcrypt';
+import userModel from '../model/UserModel.js';
+import jwt from 'jsonwebtoken';
+
+export const RegisterUser = async (req, res) => {
+
     try {
-        res.send("User registered successfully");
-      // Registration logic here
+        const { name, email, password } = req.body;
+
+       
+        // Check if user already exists
+        const user = await userModel.findOne({ email });
+        if (user) {
+            return res.status(409).json({ message: "User already exists" });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create new user
+        const newUser ={
+            name,
+            email,
+            password: hashedPassword,
+        };
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        const activationToken = jwt.sign({ newUser, otp }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+        const data = {
+            name, otp
+        }
+        await sendMail(email, "EceraLearn", data);
+        res.status(200).json({
+            message: "Otp send to your mail",
+            activationToken,
+        });
+
+
     } catch (error) {
-      console.error("Error registering user:", error);
-      res.status(500).json({ message: "Internal server error" });
+        console.error("Error registering user:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const VerifyUser = async (req, res) => {
+    try {
+        const { activationToken, otp } = req.body;
+
+        // Verify JWT
+        const decoded = jwt.verify(activationToken, process.env.JWT_SECRET);
+        const { newUser } = decoded;
+
+        if (decoded.otp !== otp) {
+            return res.status(400).json({ message: "Invalid OTP" });
+        }
+
+        // Create user
+        const user = new userModel(newUser);
+        await user.save();
+
+        res.status(201).json({ message: "User registered successfully", user });
+    } catch (error) {
+        console.error("Error verifying user:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 };

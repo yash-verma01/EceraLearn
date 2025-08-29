@@ -5,5 +5,5 @@ import { RegisterUser } from '../controllers/userController.js';
 
 
 
-router.get('/register', RegisterUser);
+router.post('/register', RegisterUser);
 export default router;
