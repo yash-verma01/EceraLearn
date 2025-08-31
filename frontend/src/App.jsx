@@ -11,18 +11,17 @@ import { useContext } from 'react'
 import UserContext from './context/UserContext'
 
 const App = () => {
-
- 
+  const { auth } = useContext(UserContext);
   return (
     <div>
-      <Header />
+      <Header auth={auth} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/verify" element={<VerifyForm />} />
+        <Route path="/account" element={auth ? <Account /> : <LoginForm />} />
+        <Route path="/login" element={auth ? <Home /> : <LoginForm />} />
+        <Route path="/register" element={auth ? <Home /> : <RegisterForm />} />
+        <Route path="/verify" element={auth ? <Home /> : <VerifyForm />} />
       </Routes>
     </div>
   )

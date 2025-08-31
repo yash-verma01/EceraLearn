@@ -8,7 +8,10 @@ import courseRouter from './routes/courseRouter.js';
 import adminRouter from './routes/adminRouter.js';
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173", // Your Vite frontend URL
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

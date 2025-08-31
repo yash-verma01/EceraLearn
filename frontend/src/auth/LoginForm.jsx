@@ -1,10 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import UserContext from "../context/UserContext";
+import { useContext } from "react";                            
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { loginUser, btnLoading } = useContext(UserContext);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Attempting login...");
+    // Call the login function from context
+    await loginUser(email, password,navigate);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
@@ -13,7 +22,7 @@ const LoginForm = () => {
           Login
         </h2>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
             <label
@@ -57,7 +66,7 @@ const LoginForm = () => {
             type="submit"
             className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg hover:opacity-90 transition"
           >
-            Login
+            {btnLoading ? "Loading..." : "Login"}
           </button>
         </form>
 
