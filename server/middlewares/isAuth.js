@@ -25,3 +25,16 @@ export const isAuth = async (req, res, next) => {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
+
+
+export const isAdmin = (req, res, next) => {
+    try {
+        if (req.user && req.user.role !== "admin") {
+            return res.status(403).json({ message: "You are not admin" });
+        }
+        next();
+    } catch (error) {
+        console.error("Error in isAdmin middleware:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
