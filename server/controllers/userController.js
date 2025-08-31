@@ -1,21 +1,16 @@
 import bcrypt from 'bcrypt';
 import userModel from '../model/userModel.js';
 import jwt from 'jsonwebtoken';
+import sendMail from '../middlewares/sendMail.js';
 
 export const userRegister = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-
-        // Check if user already exists
         const user = await userModel.findOne({ email });
         if (user) {
             return res.status(409).json({ message: "User already exists" });
         }
-
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new user
         const newUser ={
             name,
             email,
