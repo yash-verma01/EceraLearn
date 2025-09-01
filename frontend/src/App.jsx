@@ -9,6 +9,9 @@ import About from './pages/About'
 import Account from './pages/Account'
 import { useContext } from 'react'
 import UserContext from './context/UserContext'
+import Course from './pages/Course'
+import Footer from './components/Footer'
+import CourseDetail from './pages/CourseDetail'
 
 const App = () => {
   const { auth ,user} = useContext(UserContext);
@@ -18,11 +21,14 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
+        <Route path="/courses" element={<Course />} />
         <Route path="/account" element={auth ? <Account user={user} /> : <LoginForm />} />
         <Route path="/login" element={auth ? <Home /> : <LoginForm />} />
         <Route path="/register" element={auth ? <Home /> : <RegisterForm />} />
         <Route path="/verify" element={auth ? <Home /> : <VerifyForm />} />
+        <Route path="/course/:id" element={auth ? <CourseDetail /> : <LoginForm />} />
       </Routes>
+      <Footer></Footer>
     </div>
   )
 }
