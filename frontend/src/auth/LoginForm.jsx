@@ -1,33 +1,42 @@
-import React, { useState } from "react";
+// 
+
+
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import UserContext from "../context/UserContext";
-import { useContext } from "react";                            
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { loginUser, btnLoading } = useContext(UserContext);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Attempting login...");
-    // Call the login function from context
-    await loginUser(email, password,navigate);
+    await loginUser(email, password, navigate);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Login
+    <div className="min-h-screen flex items-center justify-center bg-black px-4">
+      <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl shadow-xl p-8">
+        {/* Heading */}
+        <h2 className="text-3xl font-bold text-center text-yellow-500 mb-6">
+          Welcome Back
         </h2>
+        <p className="text-gray-400 text-center text-sm mb-8">
+          Login to your{" "}
+          <span className="text-yellow-500 font-semibold">EceraLearn</span>{" "}
+          account and continue your journey.
+        </p>
 
+        {/* Form */}
         <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-300 mb-2"
             >
               Email
             </label>
@@ -37,8 +46,8 @@ const LoginForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter your email"
+              className="w-full px-4 py-3 bg-black text-white border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -46,7 +55,7 @@ const LoginForm = () => {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-300 mb-2"
             >
               Password
             </label>
@@ -56,26 +65,27 @@ const LoginForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter your password"
+              className="w-full px-4 py-3 bg-black text-white border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg hover:opacity-90 transition"
+            disabled={btnLoading}
+            className="w-full bg-yellow-500 text-black font-bold py-3 rounded-full hover:bg-yellow-400 transition duration-200 disabled:opacity-50"
           >
             {btnLoading ? "Loading..." : "Login"}
           </button>
         </form>
 
         {/* Switch to Register */}
-        <p className="mt-6 text-center text-gray-600">
+        <p className="mt-6 text-center text-gray-400 text-sm">
           Don’t have an account?{" "}
           <Link
             to="/register"
-            className="text-purple-600 font-semibold hover:underline"
+            className="text-yellow-500 font-semibold hover:underline"
           >
             Register
           </Link>

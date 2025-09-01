@@ -40,21 +40,54 @@ export const userRegister = async (req, res) => {
 export const userVerify = async (req, res) => {
     try {
         const { activationToken, otp } = req.body;
-        const decoded = jwt.verify(activationToken, process.env.JWT_SECRET);
-        if (!decoded) {
-            return res.status(401).json({ message: "Invalid activation token" });
-        }
-        const { newUser } = decoded;
 
-        if (decoded.otp !== otp) {
+        if (!activationToken || !otp) {
+            return res.status(400).json({ 
+                message: "Please provide both activation token and OTP" 
+            });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(activationToken, process.env.JWT_SECRET);
+        } catch (error) {
+            if (error.name === "TokenExpiredError") {
+                return res.status(401).json({ 
+                    message: "Verification session expired. Please register again." 
+                });
+            }
+            throw error;
+        }
+
+        const { newUser, otp: storedOtp } = decoded;
+
+        // Convert both OTPs to strings for comparison
+        if (String(storedOtp) !== String(otp)) {
             return res.status(400).json({ message: "Invalid OTP" });
         }
+
+        // Check if user already exists (double check)
+        const existingUser = await userModel.findOne({ email: newUser.email });
+        if (existingUser) {
+            return res.status(409).json({ 
+                message: "User already exists. Please login instead." 
+            });
+        }
+
+        // Create new user
         const user = new userModel(newUser);
         await user.save();
-        res.status(201).json({ message: "User registered successfully", user });
+
+        res.status(201).json({ 
+            success: true,
+            message: "Account verified successfully", 
+            user 
+        });
     } catch (error) {
         console.error("Error verifying user:", error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            message: "Verification failed. Please try again." 
+        });
     }
 };
 

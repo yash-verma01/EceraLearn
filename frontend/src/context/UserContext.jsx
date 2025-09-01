@@ -3,6 +3,7 @@
 import { useState, createContext, useEffect } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const UserContext = createContext();
 
@@ -11,6 +12,7 @@ export const UserProvider = ({ children }) => {
     const [auth, setAuth] = useState(false);
     const [btnLoading, setBtnLoading] = useState(false);
     const [loading, setLoading] = useState(true);
+    const navigate=useNavigate()
 
     // Token check helper function
     const hasValidToken = () => {
@@ -126,6 +128,55 @@ export const UserProvider = ({ children }) => {
             console.error("Registration error:", error);
         }
     }
+   async function verifyOtp(otp, navigate) {
+    setBtnLoading(true);
+    try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+        const activationToken = localStorage.getItem("activationToken");
+
+        if (!activationToken) {
+            toast.error("Session expired. Please register again.");
+            navigate("/register");
+            return;
+        }
+
+        const response = await axios.post(
+            `${backendUrl}/api/users/verify`,
+            { activationToken, otp },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        console.log('Verification Response:', response.data);
+
+        if (response.data.success || response.data.user) {
+            toast.success("Account verified successfully!");
+            localStorage.removeItem("activationToken"); // Clear the activation token
+            if (navigate) navigate("/login");
+        }
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || "Verification failed";
+        
+        // Handle specific error cases
+        if (error.response?.status === 401 && error.response?.data?.message?.includes("expired")) {
+            toast.error("Verification session expired. Please register again.");
+            localStorage.removeItem("activationToken");
+            if (navigate) navigate("/register");
+        } else {
+            toast.error(errorMessage);
+        }
+        
+        console.error("Verification error:", {
+            status: error.response?.status,
+            message: error.response?.data?.message || error.message
+        });
+    } finally {
+        setBtnLoading(false);
+    }
+}
 
     // Logout function
     const logout = (navigate) => {
@@ -156,7 +207,8 @@ export const UserProvider = ({ children }) => {
                 setUser, 
                 loading, 
                 fetchUserProfile, 
-                registerUser 
+                registerUser,
+                verifyOtp
             }}
         >
             {children}
