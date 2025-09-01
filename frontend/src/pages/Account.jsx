@@ -1,24 +1,51 @@
 import React from "react";
+import { use } from "react";
+import { useContext } from "react";
+import UserContext from "../context/UserContext";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-const Account = () => {
-  return (
+const Account = ({ user }) => {
+    const{setAuth,setUser}=useContext(UserContext);
+    const navigate=useNavigate();
+    const logoutHandler=()=>{
+        localStorage.removeItem("token");
+        setAuth(false);
+        setUser(null);
+        toast.success("Logged out successfully");
+        navigate("/login");
+    }
+
+  return user ? (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="profile bg-gray-900 p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
         <h2 className="text-3xl font-bold text-yellow-500 mb-6">My Profile</h2>
         <div className="profile-info space-y-4">
           <p className="text-gray-300 text-lg">
-            <strong className="text-white">Name:</strong> Prashant
+            <strong className="text-white">Name:</strong> {user.name}
           </p>
           <p className="text-gray-300 text-lg">
-            <strong className="text-white">Email:</strong> Prashant@gmail.com
+            <strong className="text-white">Email:</strong> {user.email}
           </p>
+
           <button className="mt-6 w-full bg-yellow-500 text-black font-bold py-3 rounded-full hover:bg-yellow-400 transition duration-200">
             Dashboard
+          </button>
+
+          <button className="mt-6 w-full bg-yellow-500 text-black font-bold py-3 rounded-full hover:bg-yellow-400 transition duration-200" onClick={logoutHandler}>
+            Logout
           </button>
         </div>
       </div>
     </div>
-  );
+  ):(
+    <div className="min-h-screen flex items-center justify-center bg-black px-4">
+      <div className="profile bg-gray-900 p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
+        <h2 className="text-3xl font-bold text-yellow-500 mb-6">Welcome to Your Account</h2>
+        <p className="text-gray-300 text-lg">Please log in to access your profile.</p>
+      </div>
+    </div>
+  )
 };
 
 export default Account;
